@@ -67,3 +67,74 @@ SELECT * FROM TBL_CUSTOM tc ;
 
 -- 내일 수업할 내용 혼자 해보기
 	-- 아이디, 물품코드, 수량 INSERT 하면 총 가격까지 추가해서 출력하게 트리거 만들기
+/*
+	한 아이디당 총 구매금액
+
+customID varchar(20);
+total number(7);
+
+ex) 	AAA 1500
+	AAA 2500
+	AAA 3000 ▶ AAA 7000
+*/
+SELECT * FROM p_buy;
+
+-- 결과가 아래와 같이 나오도록 하는 트리거 생성
+SELECT customid, SUM(money) AS total 
+FROM P_BUY
+GROUP BY customid
+HAVING sum(money) IS NOT NULL;
+
+-- 
+CREATE TABLE sum_total(
+	customID varchar(20),
+	total number(7)
+);
+
+SELECT * FROM SUM_TOTAL;
+
+
+CREATE OR REPLACE TRIGGER sum_total
+AFTER INSERT ON P_BUY
+FOR EACH ROW
+BEGIN
+    -- customID별 money 값의 총합
+    UPDATE sum_total
+    SET total = (SELECT SUM(money) FROM P_BUY GROUP BY customid)
+    WHERE customID = :NEW.customID;
+
+    -- customID가 sum_total 테이블에 없을 경우
+    IF (SQL%ROWCOUNT = 0) THEN
+        INSERT INTO sum_total
+        VALUES (:NEW.customID, (SELECT SUM(money) FROM P_BUY GROUP BY customid));
+    END IF;
+END;
+
+CREATE OR REPLACE TRIGGER sum_total
+AFTER INSERT ON P_BUY
+FOR EACH ROW
+DECLARE
+    v_total NUMBER;
+    v_count NUMBER;
+BEGIN
+    -- customID에 대한 합계를 조회
+    SELECT SUM(money)
+    	INTO v_total
+    FROM P_BUY
+    WHERE customid = :NEW.customid;
+
+    -- customID가 sum_total 테이블에 이미 존재하는지 확인
+    SELECT COUNT(*)
+    	INTO v_count
+    FROM sum_total
+    WHERE customid = :NEW.customid;
+
+    -- customID가 sum_total 테이블에 이미 존재하면 업데이트, 없으면 추가
+    IF v_count > 0 THEN
+        UPDATE sum_total SET total = v_total
+        WHERE customID = :NEW.customID;
+    ELSE
+        INSERT INTO sum_total (customID, total) VALUES (:NEW.customID, v_total);
+    END IF;
+END;
+

@@ -75,9 +75,23 @@ DECLARE
 BEGIN
 -- 메시지는 'fail' 이고 p_buy 테이블 INSERT 도 입력값 없어야 함.
 -- 10000원이 넘으므로 'success'	
-	proc_set_money('AAA','3MCRY',5,vresult);
+	proc_set_money('AA','JINRMn5',10,vresult);
 	dbms_output.put_line('결과 : '||vresult);
 END;
 
+DECLARE
+    vresult varchar2(20);
+BEGIN
+    proc_set_money('twice', 'JINRMn5', 8, vresult);
+    dbms_output.put_line('결과 : '||vresult);
+END;
+/*
+트리거 내부에서 P_BUY 테이블의 데이터를 참조할 때,
+정확한 컬럼 이름과 조건을 사용하고 있는지 확인하세요.
+customID 컬럼의 대소문자 구분과 조건절에 사용된
+:NEW.customID를 정확히 일치시켜야 합니다.
+*/
 SELECT * FROM P_BUY pb;
+DROP TRIGGER sum_total;
 
+SELECT * FROM USER_ERRORS WHERE TYPE = 'TRIGGER' AND NAME = 'SUM_TOTAL';
