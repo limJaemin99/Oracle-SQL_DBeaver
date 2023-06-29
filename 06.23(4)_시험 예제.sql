@@ -48,18 +48,16 @@ CREATE TABLE bookrent(
 );
 
 CREATE SEQUENCE rentno_seq START WITH 1;
-CREATE SEQUENCE memidx2_seq START WITH 10001;
 
 DROP SEQUENCE rentno_seq;
-DROP SEQUENCE memidx2_seq;
 
-INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,memidx2_seq.nextval,'B1101',to_date('2023-05-01 14:22','yyyy-mm-dd hh24:mi'),'2023-05-15',to_date('2023-05-14 11:30','yyyy-mm-dd hh24:mi'), -1);
-INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,memidx2_seq.nextval,'C1101',to_date('2023-06-12 17:04','yyyy-mm-dd hh24:mi'),'2023-06-25',null,null);
-INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,memidx2_seq.nextval,'B1101',to_date('2023-06-03 10:15','yyyy-mm-dd hh24:mi'),'2023-06-17',to_date('2023-06-17 11:33','yyyy-mm-dd hh24:mi'),0);
-INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,memidx2_seq.nextval,'C1101',to_date('2023-04-03 13:34','yyyy-mm-dd hh24:mi'),'2023-04-17',to_date('2023-04-15 14:20','yyyy-mm-dd hh24:mi'),-2);
-INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,memidx2_seq.nextval,'A1101',to_date('2023-06-16 11:11','yyyy-mm-dd hh24:mi'),'2023-06-30',null,null);
-INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,memidx2_seq.nextval,'A1102',to_date('2023-06-17 11:41','yyyy-mm-dd hh24:mi'),'2023-07-01',null,null);
-INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,memidx2_seq.nextval,'A1101',to_date('2023-05-15 13:42','yyyy-mm-dd hh24:mi'),'2023-05-29',to_date('2023-05-30 12:42','yyyy-mm-dd hh24:mi'),1);
+INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,10001,'B1101',to_date('2023-05-01 14:22','yyyy-mm-dd hh24:mi'),'2023-05-15',to_date('2023-05-14 11:30','yyyy-mm-dd hh24:mi'), -1);
+INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,10002,'C1101',to_date('2023-06-12 17:04','yyyy-mm-dd hh24:mi'),'2023-06-25',null,null);
+INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,10003,'B1101',to_date('2023-06-03 10:15','yyyy-mm-dd hh24:mi'),'2023-06-17',to_date('2023-06-17 11:33','yyyy-mm-dd hh24:mi'),0);
+INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,10004,'C1101',to_date('2023-04-03 13:34','yyyy-mm-dd hh24:mi'),'2023-04-17',to_date('2023-04-15 14:20','yyyy-mm-dd hh24:mi'),-2);
+INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,10001,'A1101',to_date('2023-06-16 11:11','yyyy-mm-dd hh24:mi'),'2023-06-30',null,null);
+INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,10003,'A1102',to_date('2023-06-17 11:41','yyyy-mm-dd hh24:mi'),'2023-07-01',null,null);
+INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,10002,'A1101',to_date('2023-05-15 13:42','yyyy-mm-dd hh24:mi'),'2023-05-29',to_date('2023-05-30 12:42','yyyy-mm-dd hh24:mi'),1);
 -- 시,분,초가 있을 경우 to_date 말고 timestamp 가 더 효율적이다. (그러나, 정확한건 to_date가 맞음)
 -- INSERT INTO BOOKRENT VALUES (rentno_seq.nextval,memidx2_seq.nextval,'A1101',timestamp '2023-05-15 13:42','2023-05-29',timestamp '2023-05-30 12:42',1);
 
@@ -87,6 +85,23 @@ UPDATE BOOKRENT SET delay_days = return_date - exp_date;	-- 정수(반올림됨)
 SELECT return_date - exp_date FROM BOOKRENT;				-- 소수점
 
 SELECT * FROM BOOKRENT;
+
+--★★★
+/*
+	★★★ rownum
+	★ union all
+	★★★ minus
+	★★★ join
+	★ 서브쿼리
+*/
+
+
+
+UPDATE BOOKRENT SET return_date = SYSDATE WHERE mem_idx = 10002;
+
+SELECT * FROM BOOKRENT;
+
+UPDATE BOOKRENT SET delay_days = trunc(return_date) - exp_date;
 
 -----------------------------★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 SELECT rownum, customid, buy_count	-- 아래 서브쿼리 () 조회결과에 대한 rownum 을 조건식으로 사용하기.
